@@ -1,4 +1,4 @@
-package cafe;
+package com.pizza.pizzaproject.cafe;
 
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

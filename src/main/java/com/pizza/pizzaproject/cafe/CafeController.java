@@ -1,10 +1,9 @@
-package cafe;
+package com.pizza.pizzaproject.cafe;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import pizza.Pizza;
 
 import java.util.List;
 
