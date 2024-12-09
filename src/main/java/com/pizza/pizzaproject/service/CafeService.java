@@ -1,5 +1,7 @@
-package com.pizza.pizzaproject.cafe;
+package com.pizza.pizzaproject.service;
 
+import com.pizza.pizzaproject.entity.Cafe;
+import com.pizza.pizzaproject.repository.CafeRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

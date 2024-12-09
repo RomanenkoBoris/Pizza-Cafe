@@ -1,9 +1,7 @@
-package com.pizza.pizzaproject.pizza;
+package com.pizza.pizzaproject.entity;
 
-import com.pizza.pizzaproject.cafe.Cafe;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;

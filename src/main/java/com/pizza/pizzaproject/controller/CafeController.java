@@ -1,5 +1,8 @@
-package com.pizza.pizzaproject.cafe;
+package com.pizza.pizzaproject.controller;
 
+import com.pizza.pizzaproject.service.CafeService;
+import com.pizza.pizzaproject.entity.Cafe;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,12 +28,12 @@ public class CafeController {
     }
 
     @PostMapping
-    public ResponseEntity<Cafe> createCafe(@RequestBody Cafe cafe){
+    public ResponseEntity<Cafe> createCafe(@RequestBody @Valid Cafe cafe){
         return ResponseEntity.status(HttpStatus.CREATED).body(cafeService.createCafe(cafe));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody Cafe cafe){
+    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody @Valid Cafe cafe){
         return ResponseEntity.ok(cafeService.updateCafe(id, cafe));
     }
 

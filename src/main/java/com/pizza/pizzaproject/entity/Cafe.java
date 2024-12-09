@@ -1,4 +1,4 @@
-package com.pizza.pizzaproject.cafe;
+package com.pizza.pizzaproject.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
@@ -6,7 +6,6 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.pizza.pizzaproject.pizza.Pizza;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.List;
