@@ -23,21 +23,17 @@ public class PizzaService {
     }
 
     public Pizza getPizzaById(Long id) {
-        return pizzaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pizza with ID " + id + " not found"));
+        return findPizza(id);
     }
 
     public Pizza createPizza(Pizza pizza) {
-        validatePizza(pizza);
         return pizzaRepository.save(pizza);
     }
 
     public Pizza updatePizza(Long id, Pizza updatedPizza) {
-        Pizza existingPizza = pizzaRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Pizza with ID " + id + " not found"));
+        Pizza existingPizza = findPizza(id);
         if (updatedPizza.getCafe() != null && updatedPizza.getCafe().getId() != null) {
-            Cafe cafe = cafeRepository.findById(updatedPizza.getCafe().getId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cafe with ID " + updatedPizza.getCafe().getId() + " not found"));
+            Cafe cafe = findCafe(updatedPizza.getCafe().getId());
             existingPizza.setCafe(cafe);
         }
         existingPizza.setSize(updatedPizza.getSize());
@@ -54,8 +50,12 @@ public class PizzaService {
         pizzaRepository.deleteById(id);
     }
 
-    private void validatePizza(Pizza pizza){
-        if (pizza == null)
-            throw new IllegalArgumentException("Pizza cannot ba null");
+    private Pizza findPizza(Long id){
+        return pizzaRepository.findById(id).orElseThrow(()-> new EntityNotFoundException("Pizza with ID " + id + " not found"));
+    }
+
+    private Cafe findCafe(Long id){
+        return cafeRepository.findById(id)
+                .orElseThrow(()->new EntityNotFoundException("Cafe with ID " + id + " not found"));
     }
 }

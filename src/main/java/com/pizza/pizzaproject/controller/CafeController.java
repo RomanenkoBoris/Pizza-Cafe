@@ -1,5 +1,6 @@
 package com.pizza.pizzaproject.controller;
 
+import com.pizza.pizzaproject.entity.Pizza;
 import com.pizza.pizzaproject.service.CafeService;
 import com.pizza.pizzaproject.entity.Cafe;
 import jakarta.validation.Valid;
@@ -40,6 +41,18 @@ public class CafeController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
         cafeService.deleteCafe(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/pizzas")
+    public ResponseEntity<Void> addPizzaToCafe(@PathVariable(name = "id") Long cafeId, @RequestBody @Valid Pizza pizza){
+        cafeService.addPizzaToCafe(cafeId, pizza);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @DeleteMapping("/{cafeId}/pizzas/{pizzaId}")
+    public ResponseEntity<Void> deletePizzaFromProduct(@PathVariable Long cafeId, @PathVariable Long pizzaId){
+        cafeService.deletePizzaFromCafe(cafeId, pizzaId);
         return ResponseEntity.noContent().build();
     }
 

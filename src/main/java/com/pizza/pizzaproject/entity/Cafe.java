@@ -8,7 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Length;
 
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "cafes")
@@ -37,6 +38,19 @@ public class Cafe {
 
     @OneToMany(mappedBy = "cafe", orphanRemoval = true, cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Pizza> pizzas;
+    private Set<Pizza> pizzas = new HashSet<>();
+
+    public void addPizza(Pizza pizza){
+        pizzas.add(pizza);
+        pizza.setCafe(this);
+    }
+
+    public void removePizza(Long pizzaId){
+        Pizza existingPizza = pizzas.stream().filter(pizza -> pizza.getId().equals(pizzaId)).findFirst().orElse(null);
+        if (existingPizza!=null) {
+            pizzas.remove(existingPizza);
+            existingPizza.setCafe(null);
+        }
+    }
 
 }
