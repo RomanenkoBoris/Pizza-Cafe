@@ -1,5 +1,6 @@
 package com.pizza.pizzaproject.controller;
 
+import com.pizza.pizzaproject.dto.PizzaCreateOrUpdateDto;
 import com.pizza.pizzaproject.entity.Pizza;
 import com.pizza.pizzaproject.service.PizzaService;
 import jakarta.validation.Valid;
@@ -29,13 +30,13 @@ public class PizzaController {
     }
 
     @PostMapping
-    public ResponseEntity<Pizza> createPizza(@RequestBody @Valid Pizza pizza) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(pizzaService.createPizza(pizza));
+    public ResponseEntity<Pizza> createPizza(@RequestBody @Valid PizzaCreateOrUpdateDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(pizzaService.createPizza(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pizza> updatePizza(@PathVariable Long id, @RequestBody @Valid Pizza pizza) {
-        return ResponseEntity.ok(pizzaService.updatePizza(id, pizza));
+    public ResponseEntity<Pizza> updatePizza(@PathVariable Long id, @RequestBody @Valid PizzaCreateOrUpdateDto dto) {
+        return ResponseEntity.ok(pizzaService.updatePizza(id, dto));
     }
 
     @DeleteMapping("/{id}")

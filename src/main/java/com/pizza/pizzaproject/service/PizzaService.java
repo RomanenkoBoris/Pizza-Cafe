@@ -1,6 +1,8 @@
 package com.pizza.pizzaproject.service;
 
+import com.pizza.pizzaproject.dto.PizzaCreateOrUpdateDto;
 import com.pizza.pizzaproject.entity.Cafe;
+import com.pizza.pizzaproject.mapper.PizzaMapper;
 import com.pizza.pizzaproject.repository.CafeRepository;
 import com.pizza.pizzaproject.entity.Pizza;
 import com.pizza.pizzaproject.repository.PizzaRepository;
@@ -18,6 +20,9 @@ public class PizzaService {
     @Autowired
     private CafeRepository cafeRepository;
 
+    @Autowired
+    private PizzaMapper pizzaMapper;
+
     public List<Pizza> getAllPizzas() {
         return pizzaRepository.findAll();
     }
@@ -26,19 +31,20 @@ public class PizzaService {
         return findPizza(id);
     }
 
-    public Pizza createPizza(Pizza pizza) {
+    public Pizza createPizza(PizzaCreateOrUpdateDto dto) {
+        Cafe cafe = findCafe(dto.cafeId());
+        Pizza pizza = pizzaMapper.pizzaFromDto(dto, cafe);
         return pizzaRepository.save(pizza);
     }
 
-    public Pizza updatePizza(Long id, Pizza updatedPizza) {
+    public Pizza updatePizza(Long id, PizzaCreateOrUpdateDto dto) {
         Pizza existingPizza = findPizza(id);
-        if (updatedPizza.getCafe() != null && updatedPizza.getCafe().getId() != null) {
-            Cafe cafe = findCafe(updatedPizza.getCafe().getId());
-            existingPizza.setCafe(cafe);
-        }
+        Cafe cafe = findCafe(dto.cafeId());
+        Pizza updatedPizza = pizzaMapper.pizzaFromDto(dto, cafe);
         existingPizza.setSize(updatedPizza.getSize());
         existingPizza.setName(updatedPizza.getName());
         existingPizza.setKeyIngredients(updatedPizza.getKeyIngredients());
+        existingPizza.setCafe(cafe);
 
         return pizzaRepository.save(existingPizza);
     }
