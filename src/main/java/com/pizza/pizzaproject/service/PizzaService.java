@@ -64,4 +64,5 @@ public class PizzaService {
         return cafeRepository.findById(id)
                 .orElseThrow(()->new EntityNotFoundException("Cafe with ID " + id + " not found"));
     }
+
 }

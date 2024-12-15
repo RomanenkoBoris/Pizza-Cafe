@@ -1,6 +1,7 @@
 package com.pizza.pizzaproject.controller;
 
-import com.pizza.pizzaproject.entity.Pizza;
+import com.pizza.pizzaproject.dto.CafeCreateOrUpdateDto;
+import com.pizza.pizzaproject.dto.PizzaCreateOrUpdateDto;
 import com.pizza.pizzaproject.service.CafeService;
 import com.pizza.pizzaproject.entity.Cafe;
 import jakarta.validation.Valid;
@@ -19,39 +20,39 @@ public class CafeController {
     private CafeService cafeService;
 
     @GetMapping
-    public ResponseEntity<List<Cafe>> getAllCafes(){
+    public ResponseEntity<List<Cafe>> getAllCafes() {
         return ResponseEntity.ok(cafeService.getAllCafes());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Cafe> getCafeById(@PathVariable Long id){
+    public ResponseEntity<Cafe> getCafeById(@PathVariable Long id) {
         return ResponseEntity.ok(cafeService.getCafeById(id));
     }
 
     @PostMapping
-    public ResponseEntity<Cafe> createCafe(@RequestBody @Valid Cafe cafe){
-        return ResponseEntity.status(HttpStatus.CREATED).body(cafeService.createCafe(cafe));
+    public ResponseEntity<Cafe> createCafe(@RequestBody @Valid CafeCreateOrUpdateDto dto) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(cafeService.createCafe(dto));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody @Valid Cafe cafe){
-        return ResponseEntity.ok(cafeService.updateCafe(id, cafe));
+    public ResponseEntity<Cafe> updateCafe(@PathVariable Long id, @RequestBody @Valid CafeCreateOrUpdateDto dto) {
+        return ResponseEntity.ok(cafeService.updateCafe(id, dto));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteCafe(@PathVariable Long id){
+    public ResponseEntity<Void> deleteCafe(@PathVariable Long id) {
         cafeService.deleteCafe(id);
         return ResponseEntity.noContent().build();
     }
 
     @PostMapping("/{id}/pizzas")
-    public ResponseEntity<Void> addPizzaToCafe(@PathVariable(name = "id") Long cafeId, @RequestBody @Valid Pizza pizza){
-        cafeService.addPizzaToCafe(cafeId, pizza);
+    public ResponseEntity<Void> addPizzaToCafe(@PathVariable(name = "id") Long cafeId, @RequestBody @Valid PizzaCreateOrUpdateDto dto) {
+        cafeService.addPizzaToCafe(cafeId, dto);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @DeleteMapping("/{cafeId}/pizzas/{pizzaId}")
-    public ResponseEntity<Void> deletePizzaFromProduct(@PathVariable Long cafeId, @PathVariable Long pizzaId){
+    public ResponseEntity<Void> deletePizzaFromProduct(@PathVariable Long cafeId, @PathVariable Long pizzaId) {
         cafeService.deletePizzaFromCafe(cafeId, pizzaId);
         return ResponseEntity.noContent().build();
     }

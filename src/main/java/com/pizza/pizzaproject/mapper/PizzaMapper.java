@@ -16,14 +16,16 @@ import java.time.LocalDateTime;
 public interface PizzaMapper {
 
     @Mapping(source = "size", target = "size", qualifiedByName = "stringToSize")
+    @Mapping(target = "cafe", expression = "java(cafe)")
     Pizza pizzaFromDto(PizzaCreateOrUpdateDto dto, @Context Cafe cafe);
 
     @Named(value = "stringToSize")
-    private PizzaSize stringToSize(String size) {
+    default PizzaSize stringToSize(String size) {
         try {
             return PizzaSize.valueOf(size.toUpperCase());
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Pizza size is incorrect. There are 3 available sizes: small, medium and large.");
         }
     }
+
 }
