@@ -3,14 +3,11 @@ package com.pizza.pizzaproject.mapper;
 import com.pizza.pizzaproject.dto.PizzaCreateOrUpdateDto;
 import com.pizza.pizzaproject.entity.Cafe;
 import com.pizza.pizzaproject.entity.Pizza;
-import com.pizza.pizzaproject.entity.PizzaSize;
+import com.pizza.pizzaproject.enums.PizzaSize;
 import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.factory.Mappers;
-
-import java.time.LocalDateTime;
 
 @Mapper(componentModel = "spring")
 public interface PizzaMapper {

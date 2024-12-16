@@ -1,4 +1,4 @@
-package com.pizza.pizzaproject.entity;
+package com.pizza.pizzaproject.enums;
 
 public enum PizzaSize {
     SMALL,
