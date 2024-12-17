@@ -50,9 +50,8 @@ public class PizzaService {
     }
 
     public void deletePizza(Long id){
-        if (!pizzaRepository.existsById(id)){
+        if (!pizzaRepository.existsById(id))
             throw new EntityNotFoundException("Pizza with ID " + id + " not exists");
-        }
         pizzaRepository.deleteById(id);
     }
 

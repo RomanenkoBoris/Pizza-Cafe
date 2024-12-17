@@ -1,6 +1,5 @@
 package com.pizza.pizzaproject.security;
 
-import com.pizza.pizzaproject.service.UserDetailSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -11,7 +10,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.NoOpPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
@@ -19,13 +17,13 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfiguration {
+public class SecurityConfiguration{
     @Autowired
     private UserDetailSource userDetailSource;
 
     @Bean
-    public static NoOpPasswordEncoder getEncoder() {
-        return (NoOpPasswordEncoder) NoOpPasswordEncoder.getInstance();
+    public static BCryptPasswordEncoder getEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
     @Bean
@@ -43,7 +41,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(toH2Console()).permitAll()
                                 .requestMatchers(antMatcher(HttpMethod.GET, "/index.html")).permitAll()
                                 .requestMatchers(antMatcher(HttpMethod.GET, "/***")).permitAll()
-                                .requestMatchers(antMatcher(HttpMethod.GET, "/***")).hasAnyRole("ADMIN")
+                                .requestMatchers(antMatcher(HttpMethod.GET, "/api/users")).hasAnyRole("ADMIN")
 
                 )
                 .formLogin()

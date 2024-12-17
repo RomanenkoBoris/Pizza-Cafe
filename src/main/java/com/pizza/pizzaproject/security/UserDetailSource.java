@@ -1,4 +1,4 @@
-package com.pizza.pizzaproject.service;
+package com.pizza.pizzaproject.security;
 
 import com.pizza.pizzaproject.entity.User;
 import com.pizza.pizzaproject.repository.UserRepository;
