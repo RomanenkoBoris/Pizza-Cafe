@@ -39,9 +39,14 @@ public class SecurityConfiguration{
         http.authorizeHttpRequests(auth ->
                         auth
                                 .requestMatchers(toH2Console()).permitAll()
-                                .requestMatchers(antMatcher(HttpMethod.GET, "/index.html")).permitAll()
-                                .requestMatchers(antMatcher(HttpMethod.GET, "/***")).permitAll()
-                                .requestMatchers(antMatcher(HttpMethod.GET, "/api/users")).hasAnyRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/index.html").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/users").permitAll()
+                                .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
+                                .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasAnyRole("ADMIN")
+                                .anyRequest().permitAll()
+
 
                 )
                 .formLogin()

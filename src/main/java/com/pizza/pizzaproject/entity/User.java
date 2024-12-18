@@ -29,9 +29,10 @@ public class User {
     @Column(length = 30, unique = true, nullable = false)
     private String username;
 
-    @Column(length = 20, nullable = false)
+    @Column(length = 100, nullable = false)
     private String password;
     @Column(length = 10, nullable = false)
+    @Enumerated(EnumType.STRING)
     private UserRole role;
 
 }
