@@ -61,7 +61,6 @@ public class CafeService {
         Pizza pizza = pizzaMapper.pizzaFromDto(dto, cafe);
         cafe.addPizza(pizza);
         cafeRepository.save(cafe);
-        pizzaRepository.save(pizza);
     }
 
     public void deletePizzaFromCafe(Long cafeId, Long pizzaId) {

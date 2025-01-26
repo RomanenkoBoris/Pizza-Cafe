@@ -26,18 +26,15 @@ public class UserController {
     private UserService userService;
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers(@AuthenticationPrincipal Principal principal) {
-        log.info("Admin {} requested all users at {}", principal.getName(), LocalDateTime.now());
+    public ResponseEntity<List<User>> getAllUsers() {
+        log.info("Admin {} requested all users at {}", getAuth().getName(), LocalDateTime.now());
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id, @AuthenticationPrincipal Principal principal) {
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        boolean isOwner = user.getUsername().equals(principal.getName());
-        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
-        if (isOwner || isAdmin)
+        if (isOwnerOrAdmin(user.getUsername()))
             return ResponseEntity.ok(user);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
@@ -48,15 +45,31 @@ public class UserController {
     }
 
     @PutMapping("/{userName}")
-    @PreAuthorize("#userName == authentication.name or hasRole('ADMIN')")
-    public ResponseEntity<User> updateUser(@PathVariable String userName, @RequestBody UserCreateOrUpdateDTO dto, @AuthenticationPrincipal Principal principal){
-        return ResponseEntity.ok(userService.updateUser(userName, dto));
+    public ResponseEntity<User> updateUser(@PathVariable String userName, @RequestBody UserCreateOrUpdateDTO dto){
+        if (isOwnerOrAdmin(userName))
+            return ResponseEntity.ok(userService.updateUser(userName, dto));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteUser (@PathVariable Long id){
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
+        User user = userService.getUserById(id);
+        if (isOwnerOrAdmin(user.getUsername())){
+            userService.deleteUser(id);
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+    }
+
+    private boolean isOwnerOrAdmin(String username){
+        Authentication authentication = getAuth();
+        boolean isOwner = username.equals(authentication.getName());
+        boolean isAdmin = authentication.getAuthorities().stream().anyMatch(auth -> auth.getAuthority().equals("ROLE_ADMIN"));
+        return isOwner || isAdmin;
+    }
+
+    private Authentication getAuth(){
+        return SecurityContextHolder.getContext().getAuthentication();
     }
 
 

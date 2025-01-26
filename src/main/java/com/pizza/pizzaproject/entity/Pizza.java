@@ -2,6 +2,7 @@ package com.pizza.pizzaproject.entity;
 
 import com.pizza.pizzaproject.enums.PizzaSize;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,5 +35,13 @@ public class Pizza {
     @ManyToOne
     @JoinColumn(name = "cafe_id", nullable = false)
     private Cafe cafe;
+
+    public Pizza(String name, PizzaSize size, String keyIngredients, BigDecimal price, Cafe cafe) {
+        this.name = name;
+        this.size = size;
+        this.keyIngredients = keyIngredients;
+        this.price = price;
+        this.cafe = cafe;
+    }
 
 }

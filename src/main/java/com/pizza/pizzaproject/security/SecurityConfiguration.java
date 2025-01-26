@@ -44,7 +44,17 @@ public class SecurityConfiguration{
                                 .requestMatchers(HttpMethod.GET, "/api/users").hasRole("ADMIN")
                                 .requestMatchers(HttpMethod.GET, "/api/users/*").authenticated()
                                 .requestMatchers(HttpMethod.PUT, "/api/users/*").authenticated()
-                                .requestMatchers(HttpMethod.DELETE, "/api/users/*").hasAnyRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/users/*").authenticated()
+                                .requestMatchers(HttpMethod.GET, "/api/pizzas").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/pizzas").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/pizzas").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/pizzas").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/cafes").permitAll()
+                                .requestMatchers(HttpMethod.POST, "/api/cafes").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.PUT, "/api/cafes/{id}").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/cafes/{id}/pizzas").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/cafes/{cafeId}/pizzas/{pizzaId}").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.DELETE, "/api/cafes/{id}").hasRole("ADMIN")
                                 .anyRequest().permitAll()
 
 
