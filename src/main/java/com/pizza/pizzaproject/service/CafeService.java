@@ -68,7 +68,6 @@ public class CafeService {
         Pizza pizza = findPizza(pizzaId);
         cafe.removePizza(pizzaId);
         cafeRepository.save(cafe);
-        pizzaRepository.save(pizza);
     }
 
     private Pizza findPizza(Long id) {

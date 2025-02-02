@@ -12,6 +12,7 @@ import com.pizza.pizzaproject.mapper.PizzaMapper;
 import com.pizza.pizzaproject.repository.CafeRepository;
 import com.pizza.pizzaproject.repository.PizzaRepository;
 import com.pizza.pizzaproject.service.CafeService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,10 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -46,8 +49,6 @@ public class CafeControllerIntegrationTest {
     @Autowired
     private PizzaRepository pizzaRepository;
 
-    @Autowired
-    private CafeService cafeService;
 
     @Autowired
     PizzaMapper pizzaMapper;
@@ -55,12 +56,42 @@ public class CafeControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    private Cafe testCafeA;
+    private Cafe testCafeB;
+
+
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
+        CafeCreateOrUpdateDto cafeA = new CafeCreateOrUpdateDto("Cafe A", "Address AAAA", "11111111111");
+        CafeCreateOrUpdateDto cafeB = new CafeCreateOrUpdateDto("Cafe B", "Address BBBB", "22222222222");
+
+        String responseA = mockMvc.perform(post("/api/cafes")
+                        .with(user("admin").roles("ADMIN"))
+                        .content(objectMapper.writeValueAsString(cafeA))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        testCafeA = objectMapper.readValue(responseA, Cafe.class);
+
+        String responseB = mockMvc.perform(post("/api/cafes")
+                        .with(user("admin").roles("ADMIN"))
+                        .content(objectMapper.writeValueAsString(cafeB))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        testCafeB = objectMapper.readValue(responseB, Cafe.class);
+    }
+
+    @AfterEach
+    void tearDown(){
         cafeRepository.deleteAll();
-        cafeService.createCafe(new CafeCreateOrUpdateDto("Cafe A", "Address AAAA", "11111111111"));
-        cafeService.createCafe(new CafeCreateOrUpdateDto("Cafe B", "Address BBBB", "22222222222"));
     }
 
     @Test
@@ -71,12 +102,24 @@ public class CafeControllerIntegrationTest {
                 .getResponse()
                 .getContentAsString();
 
-        ObjectMapper mapper = new ObjectMapper();
-        List<Map<String, Object>> cafes = mapper.readValue(response, new TypeReference<>() {
+        List<Map<String, Object>> cafes = objectMapper.readValue(response, new TypeReference<>() {
         });
         assertEquals(2, cafes.size());
         assertEquals("Cafe A", cafes.get(0).get("name"));
         assertEquals("Cafe B", cafes.get(1).get("name"));
+    }
+
+    @Test
+    void shouldReturnCafeById() throws Exception{
+        String response = mockMvc.perform(get("/api/cafes/{id}", testCafeA.getId()))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        Cafe existingCafe = objectMapper.readValue(response, Cafe.class);
+        assertEquals(testCafeA.getId(), existingCafe.getId());
+        assertEquals(testCafeA.getName(), existingCafe.getName());
     }
 
     @Test
@@ -127,10 +170,9 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void shouldUpdateExistingCafeAsAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
         CafeCreateOrUpdateDto dto = new CafeCreateOrUpdateDto("Updated Cafe", "Updated Address", "0000000000000000");
 
-        String response = mockMvc.perform(put("/api/cafes/{id}", existingCafe.getId())
+        String response = mockMvc.perform(put("/api/cafes/{id}", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
@@ -139,7 +181,7 @@ public class CafeControllerIntegrationTest {
                 .getContentAsString();
 
         Cafe updatedCafe = objectMapper.readValue(response, Cafe.class);
-        assertEquals(existingCafe.getId(), updatedCafe.getId());
+        assertEquals(testCafeA.getId(), updatedCafe.getId());
         assertEquals(updatedCafe.getName(), "Updated Cafe");
 
         List<Cafe> cafes = cafeRepository.findAll();
@@ -151,10 +193,9 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void shouldFailToUpdateCafeAsNonAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
         CafeCreateOrUpdateDto dto = new CafeCreateOrUpdateDto("Updated Cafe", "Updated Address", "0000000000000000");
 
-        mockMvc.perform(put("/api/cafes/{id}", existingCafe.getId())
+        mockMvc.perform(put("/api/cafes/{id}", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -162,10 +203,9 @@ public class CafeControllerIntegrationTest {
 
     @Test
     void shouldFailToUpdateCafeWhenUnauthorized() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
         CafeCreateOrUpdateDto dto = new CafeCreateOrUpdateDto("Updated Cafe", "Updated Address", "0000000000000000");
 
-        mockMvc.perform(put("/api/cafes/{id}", existingCafe.getId())
+        mockMvc.perform(put("/api/cafes/{id}", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -174,38 +214,31 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void shouldDeleteCafeAsAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-
-        mockMvc.perform(delete("/api/cafes/{id}", existingCafe.getId()))
+        mockMvc.perform(delete("/api/cafes/{id}", testCafeB.getId()))
                 .andExpect(status().isNoContent());
 
-        assert cafeRepository.findById(existingCafe.getId()).isEmpty();
+        assert cafeRepository.findById(testCafeB.getId()).isEmpty();
     }
 
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void shouldFailToDeleteCafeAsNonAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-
-        mockMvc.perform(delete("/api/cafes/{id}", existingCafe.getId()))
+        mockMvc.perform(delete("/api/cafes/{id}", testCafeB.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldFailToDeleteCafeAsUnauthenticatedUser() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-
-        mockMvc.perform(delete("/api/cafes/{id}", existingCafe.getId()))
+        mockMvc.perform(delete("/api/cafes/{id}", testCafeB.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void shouldAddPizzaToCafeAsAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe.getId());
+        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA.getId());
 
-        mockMvc.perform(post("/api/cafes/{id}/pizzas", existingCafe.getId())
+        mockMvc.perform(post("/api/cafes/{id}/pizzas", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isCreated());
@@ -218,10 +251,9 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void shouldFailToAddPizzaToCafeAsNonAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe.getId());
+        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA.getId());
 
-        mockMvc.perform(post("/api/cafes/{id}/pizzas", existingCafe.getId())
+        mockMvc.perform(post("/api/cafes/{id}/pizzas", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -229,10 +261,9 @@ public class CafeControllerIntegrationTest {
 
     @Test
     void shouldFailToAddPizzaToCafeAsUnauthenticatedUser() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe.getId());
+        PizzaCreateOrUpdateDto dto = new PizzaCreateOrUpdateDto("Pizza A", "medium", "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA.getId());
 
-        mockMvc.perform(post("/api/cafes/{id}/pizzas", existingCafe.getId())
+        mockMvc.perform(post("/api/cafes/{id}/pizzas", testCafeA.getId())
                         .content(objectMapper.writeValueAsString(dto))
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isForbidden());
@@ -241,10 +272,9 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "admin", roles = "ADMIN")
     void shouldDeletePizzaFromCafeAsAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe));
+        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA));
 
-        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", existingCafe.getId(), pizza.getId()))
+        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", testCafeA.getId(), pizza.getId()))
                 .andExpect(status().isNoContent());
 
         assertEquals(pizzaRepository.findAll().size(), 0);
@@ -253,19 +283,17 @@ public class CafeControllerIntegrationTest {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void shouldFailToDeletePizzaFromCafeAsNonAdmin() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe));
+        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA));
 
-        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", existingCafe.getId(), pizza.getId()))
+        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", testCafeA.getId(), pizza.getId()))
                 .andExpect(status().isForbidden());
     }
 
     @Test
     void shouldFailToDeletePizzaFromCafeAsUnauthenticatedUser() throws Exception {
-        Cafe existingCafe = cafeRepository.findAll().get(0);
-        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), existingCafe));
+        Pizza pizza = pizzaRepository.save(new Pizza("Pizza A", PizzaSize.MEDIUM, "mushrooms A, cheese A, ham A", new BigDecimal("9.99"), testCafeA));
 
-        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", existingCafe.getId(), pizza.getId()))
+        mockMvc.perform(delete("/api/cafes/{cafeId}/pizzas/{pizzaId}", testCafeA.getId(), pizza.getId()))
                 .andExpect(status().isForbidden());
     }
 
