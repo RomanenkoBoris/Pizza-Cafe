@@ -1,4 +1,4 @@
-package com.pizza.pizzaproject;
+package com.pizza.pizzaproject.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pizza.pizzaproject.dto.CafeCreateOrUpdateDto;

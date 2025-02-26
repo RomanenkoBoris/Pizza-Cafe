@@ -1,4 +1,4 @@
-package com.pizza.pizzaproject;
+package com.pizza.pizzaproject.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
